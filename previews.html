@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Venetian Blinds Card – Layout Previews</title>
+<style>
+  :root {
+    --primary-color: #03a9f4;
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --divider-color: #e0e0e0;
+    --secondary-background-color: #f0f3f6;
+    --card-background-color: #ffffff;
+    --text-primary-color: #ffffff;
+    --bg: #f2f3f5;
+    --shadow: 0 2px 4px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--primary-text-color);
+    margin: 0;
+    padding: 32px;
+  }
+  h1 { font-size: 22px; margin: 0 0 8px; text-align: center; }
+  .intro {
+    max-width: 920px; margin: 0 auto 32px;
+    color: var(--secondary-text-color); font-size: 14px;
+    line-height: 1.5; text-align: center;
+  }
+  code { background: #eef1f4; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .section-heading {
+    max-width: 1400px; margin: 32px auto 16px; font-size: 13px;
+    color: var(--secondary-text-color); text-transform: uppercase;
+    letter-spacing: .5px; font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .grid.narrow { grid-template-columns: repeat(auto-fit, minmax(220px, 280px)); justify-content: center; }
+  .design { display: flex; flex-direction: column; }
+  .design-label {
+    background: #263238; color: white; padding: 10px 16px;
+    border-radius: 12px 12px 0 0; font-size: 13px;
+  }
+  .design-label small { display: block; opacity: .7; font-weight: normal; margin-top: 2px; }
+
+  /* ===== shared card chrome (mirrors built card) ===== */
+  .ha-card {
+    background: var(--card-background-color);
+    border-radius: 0 0 12px 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    flex: 1;
+  }
+  .card-header {
+    font-size: 18px; font-weight: 500;
+    padding: 16px 16px 4px;
+  }
+  .content { padding: 8px 16px 16px; }
+  svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+  /* ===== LIST LAYOUT ===== */
+  .list .row {
+    display: flex; align-items: center;
+    padding: 12px 0; gap: 12px;
+    border-bottom: 1px solid var(--divider-color);
+  }
+  .list .row:last-child { border-bottom: none; }
+  .list .row-label { flex: 1; min-width: 0; }
+  .list .row-name { font-size: 15px; font-weight: 500; }
+  .list .row-state { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
+  .list .chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .list .chip {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--divider-color);
+    background: var(--card-background-color);
+    color: var(--primary-text-color);
+    cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .list .chip.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+
+  /* ===== CARDS LAYOUT ===== */
+  .cards .blind-card {
+    background: var(--card-background-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .cards .blind-card:last-child { margin-bottom: 0; }
+  .cards .top {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .cards .icon-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--secondary-background-color);
+    color: var(--primary-color);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cards .icon-circle svg { width: 22px; height: 22px; }
+  .cards .blind-info { flex: 1; min-width: 0; }
+  .cards .blind-name { font-size: 14px; font-weight: 600; }
+  .cards .blind-status { font-size: 12px; color: var(--secondary-text-color); }
+  .cards .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .cards .preset {
+    background: var(--secondary-background-color);
+    border: none; padding: 10px 4px; border-radius: 8px;
+    cursor: pointer; font-size: 11px;
+    color: var(--secondary-text-color);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .cards .preset.active {
+    background: var(--primary-color); color: white;
+  }
+
+  /* ===== SEGMENTED LAYOUT ===== */
+  .segmented .seg-block { padding: 14px 0; border-bottom: 1px solid var(--divider-color); }
+  .segmented .seg-block:first-child { padding-top: 4px; }
+  .segmented .seg-block:last-child { border-bottom: none; padding-bottom: 4px; }
+  .segmented .seg-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .segmented .seg-name-area { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+  .segmented .seg-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--primary-color); flex-shrink: 0;
+  }
+  .segmented .seg-name { font-weight: 500; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .segmented .seg-pill { font-size: 12px; color: var(--primary-color); font-weight: 600; white-space: nowrap; }
+  .segmented .seg-bar {
+    display: flex; gap: 4px;
+    background: var(--secondary-background-color);
+    padding: 4px; border-radius: 10px;
+  }
+  .segmented .seg-btn {
+    flex: 1 1 0; min-width: 0;
+    padding: 8px 4px; border: none;
+    background: transparent; border-radius: 6px;
+    cursor: pointer; font-size: 11px;
+    color: var(--secondary-text-color);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .segmented .seg-btn.active {
+    background: var(--card-background-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ===== narrow demo (forced collapse) ===== */
+  .narrow-demo .ha-card { width: 240px; }
+  .narrow-demo .list .row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .narrow-demo .list .chips { justify-content: flex-start; }
+  .narrow-demo .cards .preset-label,
+  .narrow-demo .segmented .seg-label { display: none; }
+  .narrow-demo .cards .preset { padding: 10px 2px; gap: 0; }
+  .narrow-demo .segmented .seg-btn { padding: 8px 0; gap: 0; }
+
+</style>
+</head>
+<body>
+
+  <h1>Venetian Blinds Card – Layout Previews</h1>
+  <p class="intro">
+    Three layouts ship in the card and are selectable in the visual editor
+    via <code>layout: cards | list | segmented</code>.
+    All show tilt-only control with configurable preset buttons (no slider). Default 4 presets, max 6.
+    The card uses CSS container queries so labels collapse to icons-only when the card is narrower than
+    <code>responsive_breakpoint</code> (default 320px) — see the bottom row.
+  </p>
+
+  <div class="section-heading" style="text-align:center;">Wide layouts (default ≥320px wide)</div>
+
+  <div class="grid">
+
+    <!-- ========================= CARDS ========================= -->
+    <div class="design">
+      <div class="design-label">
+        layout: cards
+        <small>One block per blind with icon + preset row. Premium look.</small>
+      </div>
+      <div class="ha-card">
+        <div class="card-header">Living Room</div>
+        <div class="content cards">
+
+          <div class="blind-card">
+            <div class="top">
+              <div class="icon-circle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zm1 4v2h12V8H6zm0 4v2h12v-2H6zm0 4v2h12v-2H6z"/></svg>
+              </div>
+              <div class="blind-info">
+                <div class="blind-name">Window Left</div>
+                <div class="blind-status">Up · 0%</div>
+              </div>
+            </div>
+            <div class="preset-grid">
+              <button class="preset active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span>Up</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span>Open</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span>¼ Dn</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span>Down</span></button>
+            </div>
+          </div>
+
+          <div class="blind-card">
+            <div class="top">
+              <div class="icon-circle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zm1 4v2h12V8H6zm0 4v2h12v-2H6zm0 4v2h12v-2H6z"/></svg>
+              </div>
+              <div class="blind-info">
+                <div class="blind-name">Window Center</div>
+                <div class="blind-status">Open · 50%</div>
+              </div>
+            </div>
+            <div class="preset-grid">
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span>Up</span></button>
+              <button class="preset active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span>Open</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span>¼ Dn</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span>Down</span></button>
+            </div>
+          </div>
+
+          <div class="blind-card">
+            <div class="top">
+              <div class="icon-circle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zm1 4v2h12V8H6zm0 4v2h12v-2H6zm0 4v2h12v-2H6z"/></svg>
+              </div>
+              <div class="blind-info">
+                <div class="blind-name">Window Right</div>
+                <div class="blind-status">¼ Dn · 75%</div>
+              </div>
+            </div>
+            <div class="preset-grid">
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span>Up</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span>Open</span></button>
+              <button class="preset active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span>¼ Dn</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span>Down</span></button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================= LIST ========================= -->
+    <div class="design">
+      <div class="design-label">
+        layout: list
+        <small>Compact rows with round chip buttons. Best for many blinds.</small>
+      </div>
+      <div class="ha-card">
+        <div class="card-header">Living Room</div>
+        <div class="content list">
+          <div class="row">
+            <div class="row-label">
+              <div class="row-name">Window Left</div>
+              <div class="row-state">Up · 0%</div>
+            </div>
+            <div class="chips">
+              <button class="chip active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-label">
+              <div class="row-name">Window Center</div>
+              <div class="row-state">Open · 50%</div>
+            </div>
+            <div class="chips">
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg></button>
+              <button class="chip active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-label">
+              <div class="row-name">Window Right</div>
+              <div class="row-state">¼ Dn · 75%</div>
+            </div>
+            <div class="chips">
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg></button>
+              <button class="chip active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================= SEGMENTED ========================= -->
+    <div class="design">
+      <div class="design-label">
+        layout: segmented
+        <small>iOS-style segmented control bar. Cleanest for 2–4 blinds.</small>
+      </div>
+      <div class="ha-card">
+        <div class="card-header">Living Room</div>
+        <div class="content segmented">
+
+          <div class="seg-block">
+            <div class="seg-top">
+              <div class="seg-name-area"><span class="seg-dot"></span><span class="seg-name">Window Left</span></div>
+              <span class="seg-pill">Up · 0%</span>
+            </div>
+            <div class="seg-bar">
+              <button class="seg-btn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span class="seg-label">Up</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span class="seg-label">Open</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span class="seg-label">¼ Dn</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span class="seg-label">Down</span></button>
+            </div>
+          </div>
+
+          <div class="seg-block">
+            <div class="seg-top">
+              <div class="seg-name-area"><span class="seg-dot"></span><span class="seg-name">Window Center</span></div>
+              <span class="seg-pill">Open · 50%</span>
+            </div>
+            <div class="seg-bar">
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span class="seg-label">Up</span></button>
+              <button class="seg-btn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span class="seg-label">Open</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span class="seg-label">¼ Dn</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span class="seg-label">Down</span></button>
+            </div>
+          </div>
+
+          <div class="seg-block">
+            <div class="seg-top">
+              <div class="seg-name-area"><span class="seg-dot"></span><span class="seg-name">Window Right</span></div>
+              <span class="seg-pill">¼ Dn · 75%</span>
+            </div>
+            <div class="seg-bar">
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span class="seg-label">Up</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span class="seg-label">Open</span></button>
+              <button class="seg-btn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span class="seg-label">¼ Dn</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span class="seg-label">Down</span></button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-heading" style="text-align:center;">Narrow widths (240px) — labels collapse to icons</div>
+
+  <div class="grid narrow narrow-demo">
+    <!-- narrow CARDS -->
+    <div class="design">
+      <div class="design-label">cards (240px)</div>
+      <div class="ha-card">
+        <div class="content cards">
+          <div class="blind-card">
+            <div class="top">
+              <div class="icon-circle"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zm1 4v2h12V8H6zm0 4v2h12v-2H6zm0 4v2h12v-2H6z"/></svg></div>
+              <div class="blind-info"><div class="blind-name">Window Left</div><div class="blind-status">Up · 0%</div></div>
+            </div>
+            <div class="preset-grid">
+              <button class="preset active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span class="preset-label">Up</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span class="preset-label">Open</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span class="preset-label">¼ Dn</span></button>
+              <button class="preset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span class="preset-label">Down</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- narrow LIST -->
+    <div class="design">
+      <div class="design-label">list (240px)</div>
+      <div class="ha-card">
+        <div class="content list">
+          <div class="row">
+            <div class="row-label"><div class="row-name">Window Left</div><div class="row-state">Up · 0%</div></div>
+            <div class="chips">
+              <button class="chip active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg></button>
+              <button class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- narrow SEGMENTED -->
+    <div class="design">
+      <div class="design-label">segmented (240px)</div>
+      <div class="ha-card">
+        <div class="content segmented">
+          <div class="seg-block">
+            <div class="seg-top">
+              <div class="seg-name-area"><span class="seg-dot"></span><span class="seg-name">Window Left</span></div>
+              <span class="seg-pill">Up · 0%</span>
+            </div>
+            <div class="seg-bar">
+              <button class="seg-btn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11 L20 5"/><path d="M4 16 L20 10"/><path d="M4 21 L20 15"/></svg><span class="seg-label">Up</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8 L20 8"/><path d="M4 13 L20 13"/><path d="M4 18 L20 18"/></svg><span class="seg-label">Open</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6.5 L20 9.5"/><path d="M4 11.5 L20 14.5"/><path d="M4 16.5 L20 19.5"/></svg><span class="seg-label">¼ Dn</span></button>
+              <button class="seg-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5 L20 11"/><path d="M4 10 L20 16"/><path d="M4 15 L20 21"/></svg><span class="seg-label">Down</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="intro" style="margin-top: 40px;">
+    All three layouts share the same configurable options: title · per-blind names ·
+    number of blinds · cover entity · preset list (name + tilt %) · responsive breakpoint.
+    All editable in the visual GUI editor.
+  </p>
+
+</body>
+</html>
