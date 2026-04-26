@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 
 const COLOR_KEYS = ["accent_color", "active_text_color", "inactive_background", "inactive_text_color", "title_color"];
 const COLOR_VARS = {
@@ -410,7 +410,7 @@ class VenetianBlindsCard extends LitElement {
         justify-content: flex-end;
       }
       .list .chip {
-        width: 36px; height: 36px;
+        width: 44px; height: 44px;
         border-radius: 50%;
         border: 1px solid var(--divider-color);
         background: var(--card-background-color);
@@ -422,6 +422,7 @@ class VenetianBlindsCard extends LitElement {
         padding: 0;
         transition: background-color .15s, border-color .15s, color .15s;
       }
+      .list .chip svg { width: 26px; height: 26px; }
       .list .chip:hover:not(:disabled) {
         border-color: var(--vb-accent, var(--primary-color));
       }
