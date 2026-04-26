@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 
 const LIT_HOST_TAGS = ["ha-panel-lovelace", "hui-view", "home-assistant-main"];
 function findLitElement() {
@@ -756,7 +756,20 @@ class VenetianBlindsCardEditor extends LitElement {
             : ""}
           ${blinds.map(
             (b, idx) => html`
-              <div class="item blind-item">
+              <div class="block">
+                <div class="block-head">
+                  <span class="block-index">#${idx + 1}</span>
+                  <div class="item-actions">
+                    <button class="icon-btn" title="Move up"
+                            ?disabled=${idx === 0}
+                            @click=${() => this._moveBlind(idx, -1)}>▲</button>
+                    <button class="icon-btn" title="Move down"
+                            ?disabled=${idx === blinds.length - 1}
+                            @click=${() => this._moveBlind(idx, 1)}>▼</button>
+                    <button class="icon-btn danger" title="Remove"
+                            @click=${() => this._removeBlind(idx)}>✕</button>
+                  </div>
+                </div>
                 <ha-entity-picker
                   .hass=${this.hass}
                   .value=${b.entity || ""}
@@ -769,16 +782,6 @@ class VenetianBlindsCardEditor extends LitElement {
                   .value=${b.name || ""}
                   @input=${(e) => this._onBlindName(idx, e)}
                 ></ha-textfield>
-                <div class="item-actions">
-                  <button class="icon-btn" title="Move up"
-                          ?disabled=${idx === 0}
-                          @click=${() => this._moveBlind(idx, -1)}>▲</button>
-                  <button class="icon-btn" title="Move down"
-                          ?disabled=${idx === blinds.length - 1}
-                          @click=${() => this._moveBlind(idx, 1)}>▼</button>
-                  <button class="icon-btn danger" title="Remove"
-                          @click=${() => this._removeBlind(idx)}>✕</button>
-                </div>
               </div>
             `
           )}
@@ -795,28 +798,33 @@ class VenetianBlindsCardEditor extends LitElement {
           </div>
           ${presets.map(
             (p, idx) => html`
-              <div class="item preset-item">
-                <ha-textfield
-                  label="Name"
-                  .value=${p.name || ""}
-                  @input=${(e) => this._onPresetName(idx, e)}
-                ></ha-textfield>
-                <ha-textfield
-                  label="Tilt %"
-                  type="number"
-                  min="0" max="100"
-                  .value=${String(p.tilt ?? 50)}
-                  @input=${(e) => this._onPresetTilt(idx, e)}
-                ></ha-textfield>
-                <div class="item-actions">
-                  <button class="icon-btn" title="Move up"
-                          ?disabled=${idx === 0}
-                          @click=${() => this._movePreset(idx, -1)}>▲</button>
-                  <button class="icon-btn" title="Move down"
-                          ?disabled=${idx === presets.length - 1}
-                          @click=${() => this._movePreset(idx, 1)}>▼</button>
-                  <button class="icon-btn danger" title="Remove"
-                          @click=${() => this._removePreset(idx)}>✕</button>
+              <div class="block">
+                <div class="block-head">
+                  <span class="block-index">#${idx + 1}</span>
+                  <div class="item-actions">
+                    <button class="icon-btn" title="Move up"
+                            ?disabled=${idx === 0}
+                            @click=${() => this._movePreset(idx, -1)}>▲</button>
+                    <button class="icon-btn" title="Move down"
+                            ?disabled=${idx === presets.length - 1}
+                            @click=${() => this._movePreset(idx, 1)}>▼</button>
+                    <button class="icon-btn danger" title="Remove"
+                            @click=${() => this._removePreset(idx)}>✕</button>
+                  </div>
+                </div>
+                <div class="preset-fields">
+                  <ha-textfield
+                    label="Name"
+                    .value=${p.name || ""}
+                    @input=${(e) => this._onPresetName(idx, e)}
+                  ></ha-textfield>
+                  <ha-textfield
+                    label="Tilt %"
+                    type="number"
+                    min="0" max="100"
+                    .value=${String(p.tilt ?? 50)}
+                    @input=${(e) => this._onPresetTilt(idx, e)}
+                  ></ha-textfield>
                 </div>
               </div>
             `
@@ -840,6 +848,7 @@ class VenetianBlindsCardEditor extends LitElement {
 
   static get styles() {
     return css`
+      :host { display: block; container-type: inline-size; container-name: vbeditor; }
       .editor { display: flex; flex-direction: column; gap: 16px; padding: 8px 0; }
       .row { display: flex; flex-direction: column; gap: 8px; }
       ha-textfield { width: 100%; }
@@ -897,14 +906,33 @@ class VenetianBlindsCardEditor extends LitElement {
         border-radius: 6px;
         margin-bottom: 8px;
       }
-      .item {
-        display: grid;
+      .block {
+        background: var(--secondary-background-color);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
         gap: 8px;
-        align-items: center;
-        margin-bottom: 8px;
       }
-      .blind-item { grid-template-columns: 1fr 1fr auto; }
-      .preset-item { grid-template-columns: 1fr 110px auto; }
+      .block-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .block-index {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .5px;
+        color: var(--secondary-text-color);
+        text-transform: uppercase;
+      }
+      .preset-fields {
+        display: grid;
+        grid-template-columns: 1fr 90px;
+        gap: 8px;
+      }
       .item-actions {
         display: flex;
         gap: 4px;
@@ -965,8 +993,8 @@ class VenetianBlindsCardEditor extends LitElement {
         border-radius: 6px;
       }
 
-      @media (max-width: 480px) {
-        .blind-item, .preset-item { grid-template-columns: 1fr; }
+      @container vbeditor (max-width: 280px) {
+        .preset-fields { grid-template-columns: 1fr; }
       }
     `;
   }
