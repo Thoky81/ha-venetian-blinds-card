@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 
 const LIT_HOST_TAGS = ["ha-panel-lovelace", "hui-view", "home-assistant-main"];
 function findLitElement() {
@@ -29,6 +29,11 @@ const DEFAULT_PRESETS = [
 ];
 
 const MAX_PRESETS = 6;
+
+const SUPPORT_SET_TILT_POSITION = 128;
+function supportsTilt(state) {
+  return ((state?.attributes?.supported_features ?? 0) & SUPPORT_SET_TILT_POSITION) === SUPPORT_SET_TILT_POSITION;
+}
 
 const TILT_TOLERANCE = 5;
 
@@ -132,6 +137,7 @@ class VenetianBlindsCard extends LitElement {
   _statusText(state, tilt) {
     if (!state) return "Unknown";
     if (state.state === "unavailable") return "Unavailable";
+    if (!supportsTilt(state)) return "Doesn't support tilt";
     if (tilt == null) return state.state;
     const idx = this._activePresetIndex(tilt);
     if (idx >= 0) return `${this._config.presets[idx].name} · ${tilt}%`;
@@ -157,7 +163,7 @@ class VenetianBlindsCard extends LitElement {
     const name = blind.name || state?.attributes?.friendly_name || blind.entity;
     const activeIdx = this._activePresetIndex(tilt);
     const status = this._statusText(state, tilt);
-    const disabled = !state || state.state === "unavailable";
+    const disabled = !state || state.state === "unavailable" || !supportsTilt(state);
 
     return html`
       <div class="row ${disabled ? "disabled" : ""}">
@@ -189,7 +195,7 @@ class VenetianBlindsCard extends LitElement {
     const name = blind.name || state?.attributes?.friendly_name || blind.entity;
     const activeIdx = this._activePresetIndex(tilt);
     const status = this._statusText(state, tilt);
-    const disabled = !state || state.state === "unavailable";
+    const disabled = !state || state.state === "unavailable" || !supportsTilt(state);
 
     return html`
       <div class="seg-block ${disabled ? "disabled" : ""}">
@@ -225,7 +231,7 @@ class VenetianBlindsCard extends LitElement {
     const name = blind.name || state?.attributes?.friendly_name || blind.entity;
     const activeIdx = this._activePresetIndex(tilt);
     const status = this._statusText(state, tilt);
-    const disabled = !state || state.state === "unavailable";
+    const disabled = !state || state.state === "unavailable" || !supportsTilt(state);
     const cols = this._config.presets.length;
 
     return html`
@@ -774,6 +780,7 @@ class VenetianBlindsCardEditor extends LitElement {
                   .hass=${this.hass}
                   .value=${b.entity || ""}
                   .includeDomains=${["cover"]}
+                  .entityFilter=${supportsTilt}
                   allow-custom-entity
                   @value-changed=${(e) => this._onBlindEntity(idx, e)}
                 ></ha-entity-picker>
