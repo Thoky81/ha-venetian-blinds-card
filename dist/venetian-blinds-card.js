@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.1.4";
+const VERSION = "0.2.0";
 
 const LIT_HOST_TAGS = ["ha-panel-lovelace", "hui-view", "home-assistant-main"];
 function findLitElement() {
@@ -29,6 +29,16 @@ const DEFAULT_PRESETS = [
 ];
 
 const MAX_PRESETS = 6;
+
+const TILT_SVC = { service: "set_cover_tilt_position", param: "tilt_position", attr: "current_tilt_position" };
+const POS_SVC  = { service: "set_cover_position",      param: "position",       attr: "current_position" };
+
+function resolveService(state, mode) {
+  if (mode === "tilt") return TILT_SVC;
+  if (mode === "position") return POS_SVC;
+  if (state?.attributes && "current_tilt_position" in state.attributes) return TILT_SVC;
+  return POS_SVC;
+}
 
 
 const TILT_TOLERANCE = 5;
@@ -82,9 +92,12 @@ class VenetianBlindsCard extends LitElement {
         : DEFAULT_PRESETS;
     const bp = Number(config.responsive_breakpoint);
     const responsive_breakpoint = Number.isFinite(bp) && bp >= 0 ? bp : 320;
+    const validServices = ["auto", "tilt", "position"];
+    const service = validServices.includes(config.service) ? config.service : "auto";
     this._config = {
       title: typeof config.title === "string" ? config.title : "",
       layout,
+      service,
       blinds: config.blinds.map((b) => ({
         entity: b.entity,
         name: typeof b.name === "string" ? b.name : "",
@@ -110,9 +123,11 @@ class VenetianBlindsCard extends LitElement {
 
   _setTilt(entity, tilt) {
     if (!this.hass) return;
-    this.hass.callService("cover", "set_cover_tilt_position", {
+    const state = this.hass.states[entity];
+    const svc = resolveService(state, this._config.service);
+    this.hass.callService("cover", svc.service, {
       entity_id: entity,
-      tilt_position: tilt,
+      [svc.param]: tilt,
     });
   }
 
@@ -154,7 +169,8 @@ class VenetianBlindsCard extends LitElement {
 
   _renderListRow(blind) {
     const state = this.hass.states[blind.entity];
-    const tilt = state?.attributes?.current_tilt_position;
+    const svc = resolveService(state, this._config.service);
+    const tilt = state?.attributes?.[svc.attr];
     const name = blind.name || state?.attributes?.friendly_name || blind.entity;
     const activeIdx = this._activePresetIndex(tilt);
     const status = this._statusText(state, tilt);
@@ -186,7 +202,8 @@ class VenetianBlindsCard extends LitElement {
 
   _renderSegmentedRow(blind) {
     const state = this.hass.states[blind.entity];
-    const tilt = state?.attributes?.current_tilt_position;
+    const svc = resolveService(state, this._config.service);
+    const tilt = state?.attributes?.[svc.attr];
     const name = blind.name || state?.attributes?.friendly_name || blind.entity;
     const activeIdx = this._activePresetIndex(tilt);
     const status = this._statusText(state, tilt);
@@ -222,7 +239,8 @@ class VenetianBlindsCard extends LitElement {
 
   _renderBlindCard(blind) {
     const state = this.hass.states[blind.entity];
-    const tilt = state?.attributes?.current_tilt_position;
+    const svc = resolveService(state, this._config.service);
+    const tilt = state?.attributes?.[svc.attr];
     const name = blind.name || state?.attributes?.friendly_name || blind.entity;
     const activeIdx = this._activePresetIndex(tilt);
     const status = this._statusText(state, tilt);
@@ -606,6 +624,10 @@ class VenetianBlindsCardEditor extends LitElement {
     this._emit({ ...this._config, layout: e.target.value });
   }
 
+  _onService(e) {
+    this._emit({ ...this._config, service: e.target.value });
+  }
+
   _onBreakpoint(e) {
     const v = parseInt(e.target.value, 10);
     this._emit({ ...this._config, responsive_breakpoint: Number.isFinite(v) ? Math.max(0, v) : 320 });
@@ -693,6 +715,7 @@ class VenetianBlindsCardEditor extends LitElement {
     const validLayouts = ["cards", "list", "segmented"];
     const layout = validLayouts.includes(this._config.layout) ? this._config.layout : "cards";
     const bp = this._config.responsive_breakpoint ?? 320;
+    const service = ["auto", "tilt", "position"].includes(this._config.service) ? this._config.service : "auto";
 
     return html`
       <div class="editor">
@@ -730,6 +753,36 @@ class VenetianBlindsCardEditor extends LitElement {
               <span>
                 <strong>Segmented</strong>
                 <small>iOS-style segmented control bar. Cleanest for 2–4 blinds.</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field-label">Service mode</div>
+          <div class="layout-options">
+            <label class="radio">
+              <input type="radio" name="service" value="auto"
+                     .checked=${service === "auto"} @change=${this._onService}>
+              <span>
+                <strong>Auto-detect</strong>
+                <small>Use tilt service if entity reports <code>current_tilt_position</code>, otherwise position.</small>
+              </span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="service" value="tilt"
+                     .checked=${service === "tilt"} @change=${this._onService}>
+              <span>
+                <strong>Tilt</strong>
+                <small>Force <code>cover.set_cover_tilt_position</code>.</small>
+              </span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="service" value="position"
+                     .checked=${service === "position"} @change=${this._onService}>
+              <span>
+                <strong>Position</strong>
+                <small>Force <code>cover.set_cover_position</code>. Use for blinds whose only motion is slat tilt mapped to position.</small>
               </span>
             </label>
           </div>

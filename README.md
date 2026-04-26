@@ -39,7 +39,11 @@ Open [`previews.html`](previews.html) in a browser to see the three layouts side
 
 ## Requirements
 
-Each blind entity must be a `cover.*` that supports `set_cover_tilt_position` and exposes `current_tilt_position`. This is standard for KNX, Shelly 2.5, Zigbee/Z-Wave Venetian motors etc.
+Each blind entity must be a `cover.*` that supports either:
+- **`set_cover_tilt_position`** with `current_tilt_position` attribute (most KNX, Shelly 2.5, Zigbee/Z-Wave Venetian motors), **or**
+- **`set_cover_position`** with `current_position` attribute (common for ESPHome, MQTT covers, and some local integrations where slat tilt is the only motion and is mapped onto the position axis)
+
+The card auto-detects which one to use. You can override the choice in the editor (Service mode: Auto / Tilt / Position) if needed.
 
 ## Configuration
 
@@ -49,6 +53,7 @@ The card has a full visual editor — no YAML needed. For reference, the YAML sc
 type: custom:venetian-blinds-card
 title: Living Room                # optional
 layout: cards                     # cards | list | segmented (default: cards)
+service: auto                     # auto | tilt | position (default: auto)
 responsive_breakpoint: 320        # px width below which labels collapse to icons. 0 disables.
 blinds:
   - entity: cover.living_left
