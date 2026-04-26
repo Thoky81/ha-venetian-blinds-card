@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.1.2";
+const VERSION = "0.1.3";
 
 const LIT_HOST_TAGS = ["ha-panel-lovelace", "hui-view", "home-assistant-main"];
 function findLitElement() {
@@ -780,7 +780,6 @@ class VenetianBlindsCardEditor extends LitElement {
                   .hass=${this.hass}
                   .value=${b.entity || ""}
                   .includeDomains=${["cover"]}
-                  .entityFilter=${supportsTilt}
                   allow-custom-entity
                   @value-changed=${(e) => this._onBlindEntity(idx, e)}
                 ></ha-entity-picker>
