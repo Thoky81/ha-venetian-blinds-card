@@ -1,7 +1,7 @@
 /*!
  * Venetian Blinds Card
  * Tilt-focused custom card for Home Assistant
- * https://github.com/<your-user>/venetian-blinds-card
+ * https://github.com/Thoky81/ha-venetian-blinds-card
  * License: MIT
  */
 
