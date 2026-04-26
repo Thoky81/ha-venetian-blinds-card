@@ -12,6 +12,7 @@ A **tilt-focused** custom card for Home Assistant, designed for venetian (horizo
   - **Segmented** — iOS-style segmented control bar (cleanest for 2–4 blinds)
 - **Multiple blinds per card** — group all the windows of one room together
 - **Configurable presets** — name, count (1–6), and tilt % all editable in the GUI
+- **5 customizable colors** — accent / active text / inactive bg / inactive text / title. Accepts hex, rgb, named, or `var(--theme-token)`
 - **Responsive** — uses CSS container queries; labels collapse to icons on narrow cards (sidebar dashboards, mobile)
 - **Visual editor** — full GUI configuration, no YAML required
 - **Tilt-only** — no slider, no open/close noise; just the angles you actually use
@@ -55,6 +56,13 @@ title: Living Room                # optional
 layout: cards                     # cards | list | segmented (default: cards)
 service: auto                     # auto | tilt | position (default: auto)
 responsive_breakpoint: 320        # px width below which labels collapse to icons. 0 disables.
+
+# colors — all optional, blank means HA theme. Hex / rgb / named / var() all accepted.
+accent_color: ""                  # active button bg, dot, pill (default: var(--primary-color))
+active_text_color: ""             # text/icon on the active button (default: var(--text-primary-color))
+inactive_background: ""           # inactive button / segmented bar bg (default: var(--secondary-background-color))
+inactive_text_color: ""           # inactive button text & status lines (default: var(--secondary-text-color))
+title_color: ""                   # card header title (default: var(--ha-card-header-color))
 blinds:
   - entity: cover.living_left
     name: Window Left             # optional, falls back to friendly_name
@@ -62,26 +70,27 @@ blinds:
   - entity: cover.living_right
 presets:                          # optional, defaults to 4 standard presets. Max 6.
   - name: Up
-    tilt: 0
+    tilt: 100
   - name: Open
     tilt: 50
-  - name: ¼ Dn
-    tilt: 75
+  - name: Shade
+    tilt: 25
   - name: Down
-    tilt: 100
+    tilt: 0
 ```
 
-### Tilt convention
+### Position / tilt convention
 
-Home Assistant's `tilt_position` is `0–100`. By convention used by this card:
+Both `position` and `tilt_position` in HA use `0–100`. The card treats them as monotonic openness:
 
-| Tilt | Meaning           |
-|-----:|-------------------|
-|    0 | Closed up (slats angled up)   |
-|   50 | Open (horizontal slats)       |
-|  100 | Closed down (slats angled down) |
+| Value | Meaning                       |
+|------:|-------------------------------|
+|   100 | Up / Open (max light)         |
+|    50 | Half open                     |
+|    25 | Shaded (most light blocked, slats not fully closed) |
+|     0 | Down / Closed                 |
 
-Some integrations invert this — just set the preset values to whatever matches your hardware.
+Some hardware inverts this — just set the preset values to whatever matches yours.
 
 ### Responsive breakpoint
 

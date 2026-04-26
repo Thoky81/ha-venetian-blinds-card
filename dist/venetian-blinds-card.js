@@ -5,7 +5,16 @@
  * License: MIT
  */
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
+
+const COLOR_KEYS = ["accent_color", "active_text_color", "inactive_background", "inactive_text_color", "title_color"];
+const COLOR_VARS = {
+  accent_color: "--vb-accent",
+  active_text_color: "--vb-active-text",
+  inactive_background: "--vb-inactive-bg",
+  inactive_text_color: "--vb-inactive-text",
+  title_color: "--vb-title",
+};
 
 const LIT_HOST_TAGS = ["ha-panel-lovelace", "hui-view", "home-assistant-main"];
 function findLitElement() {
@@ -22,10 +31,10 @@ const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
 const DEFAULT_PRESETS = [
-  { name: "Up", tilt: 0 },
+  { name: "Up", tilt: 100 },
   { name: "Open", tilt: 50 },
-  { name: "¼ Dn", tilt: 75 },
-  { name: "Down", tilt: 100 },
+  { name: "Shade", tilt: 25 },
+  { name: "Down", tilt: 0 },
 ];
 
 const MAX_PRESETS = 6;
@@ -94,6 +103,10 @@ class VenetianBlindsCard extends LitElement {
     const responsive_breakpoint = Number.isFinite(bp) && bp >= 0 ? bp : 320;
     const validServices = ["auto", "tilt", "position"];
     const service = validServices.includes(config.service) ? config.service : "auto";
+    const colors = {};
+    for (const key of COLOR_KEYS) {
+      colors[key] = typeof config[key] === "string" && config[key].trim() ? config[key].trim() : "";
+    }
     this._config = {
       title: typeof config.title === "string" ? config.title : "",
       layout,
@@ -104,6 +117,7 @@ class VenetianBlindsCard extends LitElement {
       })),
       presets,
       responsive_breakpoint,
+      ...colors,
     };
   }
 
@@ -316,6 +330,13 @@ class VenetianBlindsCard extends LitElement {
     `;
   }
 
+  _colorStyle() {
+    return COLOR_KEYS
+      .filter((k) => this._config[k])
+      .map((k) => `${COLOR_VARS[k]}: ${this._config[k]};`)
+      .join(" ");
+  }
+
   render() {
     if (!this._config || !this.hass) return html``;
     const layout = this._config.layout;
@@ -326,7 +347,7 @@ class VenetianBlindsCard extends LitElement {
     };
     const renderer = renderers[layout] || renderers.cards;
     return html`
-      <ha-card>
+      <ha-card style=${this._colorStyle()}>
         <style>${this._responsiveStyleText()}</style>
         ${this._config.title
           ? html`<div class="card-header">${this._config.title}</div>`
@@ -351,7 +372,7 @@ class VenetianBlindsCard extends LitElement {
         font-family: var(--ha-card-header-font-family, inherit);
         font-size: var(--ha-card-header-font-size, 18px);
         font-weight: 500;
-        color: var(--ha-card-header-color, var(--primary-text-color));
+        color: var(--vb-title, var(--ha-card-header-color, var(--primary-text-color)));
         padding: 16px 16px 4px;
       }
       .content { padding: 8px 16px 16px; }
@@ -379,7 +400,7 @@ class VenetianBlindsCard extends LitElement {
       }
       .list .row-state {
         font-size: 12px;
-        color: var(--secondary-text-color);
+        color: var(--vb-inactive-text, var(--secondary-text-color));
         margin-top: 2px;
       }
       .list .chips {
@@ -402,12 +423,12 @@ class VenetianBlindsCard extends LitElement {
         transition: background-color .15s, border-color .15s, color .15s;
       }
       .list .chip:hover:not(:disabled) {
-        border-color: var(--primary-color);
+        border-color: var(--vb-accent, var(--primary-color));
       }
       .list .chip.active {
-        background: var(--primary-color);
-        border-color: var(--primary-color);
-        color: var(--text-primary-color, white);
+        background: var(--vb-accent, var(--primary-color));
+        border-color: var(--vb-accent, var(--primary-color));
+        color: var(--vb-active-text, var(--text-primary-color, white));
       }
       .list .chip:disabled { cursor: not-allowed; }
 
@@ -430,11 +451,11 @@ class VenetianBlindsCard extends LitElement {
       .cards .icon-circle {
         width: 36px; height: 36px;
         border-radius: 50%;
-        background: var(--secondary-background-color);
+        background: var(--vb-inactive-bg, var(--secondary-background-color));
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--primary-color);
+        color: var(--vb-accent, var(--primary-color));
         flex-shrink: 0;
       }
       .cards .icon-circle ha-icon { --mdc-icon-size: 22px; }
@@ -449,14 +470,14 @@ class VenetianBlindsCard extends LitElement {
       }
       .cards .blind-status {
         font-size: 12px;
-        color: var(--secondary-text-color);
+        color: var(--vb-inactive-text, var(--secondary-text-color));
       }
       .cards .preset-grid {
         display: grid;
         gap: 6px;
       }
       .cards .preset {
-        background: var(--secondary-background-color);
+        background: var(--vb-inactive-bg, var(--secondary-background-color));
         border: none;
         padding: 10px 4px;
         border-radius: 8px;
@@ -466,7 +487,7 @@ class VenetianBlindsCard extends LitElement {
         align-items: center;
         gap: 4px;
         font-size: 11px;
-        color: var(--secondary-text-color);
+        color: var(--vb-inactive-text, var(--secondary-text-color));
         transition: background-color .15s, color .15s;
         min-width: 0;
       }
@@ -474,8 +495,8 @@ class VenetianBlindsCard extends LitElement {
         background: var(--divider-color);
       }
       .cards .preset.active {
-        background: var(--primary-color);
-        color: var(--text-primary-color, white);
+        background: var(--vb-accent, var(--primary-color));
+        color: var(--vb-active-text, var(--text-primary-color, white));
       }
       .cards .preset:disabled { cursor: not-allowed; }
       .cards .preset-label {
@@ -513,7 +534,7 @@ class VenetianBlindsCard extends LitElement {
       .segmented .seg-dot {
         width: 8px; height: 8px;
         border-radius: 50%;
-        background: var(--primary-color);
+        background: var(--vb-accent, var(--primary-color));
         flex-shrink: 0;
       }
       .segmented .seg-name {
@@ -526,7 +547,7 @@ class VenetianBlindsCard extends LitElement {
       }
       .segmented .seg-pill {
         font-size: 12px;
-        color: var(--primary-color);
+        color: var(--vb-accent, var(--primary-color));
         font-weight: 600;
         white-space: nowrap;
         flex-shrink: 0;
@@ -534,7 +555,7 @@ class VenetianBlindsCard extends LitElement {
       .segmented .seg-bar {
         display: flex;
         gap: 4px;
-        background: var(--secondary-background-color);
+        background: var(--vb-inactive-bg, var(--secondary-background-color));
         padding: 4px;
         border-radius: 10px;
       }
@@ -547,7 +568,7 @@ class VenetianBlindsCard extends LitElement {
         border-radius: 6px;
         cursor: pointer;
         font-size: 11px;
-        color: var(--secondary-text-color);
+        color: var(--vb-inactive-text, var(--secondary-text-color));
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -560,7 +581,7 @@ class VenetianBlindsCard extends LitElement {
       }
       .segmented .seg-btn.active {
         background: var(--card-background-color);
-        color: var(--primary-color);
+        color: var(--vb-accent, var(--primary-color));
         font-weight: 600;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
       }
@@ -631,6 +652,13 @@ class VenetianBlindsCardEditor extends LitElement {
   _onBreakpoint(e) {
     const v = parseInt(e.target.value, 10);
     this._emit({ ...this._config, responsive_breakpoint: Number.isFinite(v) ? Math.max(0, v) : 320 });
+  }
+
+  _onColor(key, value) {
+    const next = { ...this._config };
+    if (value && value.trim()) next[key] = value.trim();
+    else delete next[key];
+    this._emit(next);
   }
 
   _onBlindEntity(idx, e) {
@@ -848,7 +876,7 @@ class VenetianBlindsCardEditor extends LitElement {
             <button class="link-btn" @click=${this._resetPresets} title="Reset to defaults">Reset</button>
           </div>
           <div class="hint" style="margin-bottom: 6px;">
-            Each preset is a button on the card. Tilt range: 0% (closed up) → 50% (open) → 100% (closed down).
+            Each preset is a button on the card. 100 % = blinds up / open · 0 % = blinds down / closed.
           </div>
           ${presets.map(
             (p, idx) => html`
@@ -896,6 +924,50 @@ class VenetianBlindsCardEditor extends LitElement {
                   @click=${this._addPreset}>+ Add preset</button>
         </div>
 
+        <div class="section">
+          <div class="section-title">
+            <span>Colors</span>
+            <span class="hint">Optional — leave blank to use HA theme</span>
+          </div>
+          ${[
+            ["accent_color",        "Accent",            "Active button background, dot, pill"],
+            ["active_text_color",   "Active text",       "Text/icon on the active button"],
+            ["inactive_background", "Inactive bg",       "Inactive button / segmented bar background"],
+            ["inactive_text_color", "Inactive text",     "Inactive button text and status lines"],
+            ["title_color",         "Title",             "Card header title"],
+          ].map(([key, label, desc]) => this._renderColorRow(key, label, desc))}
+        </div>
+
+      </div>
+    `;
+  }
+
+  _renderColorRow(key, label, desc) {
+    const value = this._config[key] || "";
+    const hexValue = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value) ? value : "";
+    return html`
+      <div class="color-row">
+        <div class="color-label">
+          <strong>${label}</strong>
+          <small>${desc}</small>
+        </div>
+        <div class="color-inputs">
+          <input
+            type="text"
+            class="color-text"
+            placeholder="theme default"
+            .value=${value}
+            @change=${(e) => this._onColor(key, e.target.value)}
+          />
+          <input
+            type="color"
+            class="color-picker"
+            .value=${hexValue || "#03a9f4"}
+            @change=${(e) => this._onColor(key, e.target.value)}
+            title="Pick color"
+          />
+          ${value ? html`<button class="link-btn" @click=${() => this._onColor(key, "")}>Reset</button>` : ""}
+        </div>
       </div>
     `;
   }
@@ -1045,6 +1117,46 @@ class VenetianBlindsCardEditor extends LitElement {
         background: var(--warning-color-rgb, rgba(255, 152, 0, .1));
         border: 1px solid rgba(255, 152, 0, .35);
         border-radius: 6px;
+      }
+      .color-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--divider-color);
+      }
+      .color-row:last-child { border-bottom: none; }
+      .color-label { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+      .color-label strong { font-size: 13px; color: var(--primary-text-color); }
+      .color-label small { font-size: 11px; color: var(--secondary-text-color); }
+      .color-inputs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .color-text {
+        width: 110px;
+        padding: 6px 8px;
+        border: 1px solid var(--divider-color);
+        border-radius: 4px;
+        background: var(--card-background-color);
+        color: var(--primary-text-color);
+        font-size: 12px;
+        font-family: monospace;
+      }
+      .color-text:focus { outline: none; border-color: var(--primary-color); }
+      .color-picker {
+        width: 36px; height: 32px;
+        border: 1px solid var(--divider-color);
+        border-radius: 4px;
+        padding: 2px;
+        cursor: pointer;
+        background: none;
+        flex-shrink: 0;
+      }
+      @container vbeditor (max-width: 360px) {
+        .color-row { flex-direction: column; align-items: stretch; gap: 6px; }
+        .color-text { width: 100%; }
       }
 
       @container vbeditor (max-width: 280px) {
