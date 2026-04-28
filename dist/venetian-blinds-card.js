@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.3.2";
+const VERSION = "0.3.3";
 
 const COLOR_KEYS = ["accent_color", "active_text_color", "inactive_background", "inactive_text_color", "title_color"];
 const COLOR_VARS = {
@@ -169,7 +169,7 @@ class VenetianBlindsCard extends LitElement {
   }
 
   _tiltIcon(tilt) {
-    const o = ((clampTilt(tilt) - 50) / 50) * 5;
+    const o = ((clampTilt(tilt) - 50) / 50) * -5;
     const y = (base) => ({ l: (base - o).toFixed(2), r: (base + o).toFixed(2) });
     const a = y(8), b = y(13), c = y(18);
     return html`
