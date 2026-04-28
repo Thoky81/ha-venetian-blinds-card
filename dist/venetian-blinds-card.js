@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.3.3";
+const VERSION = "0.3.4";
 
 const COLOR_KEYS = ["accent_color", "active_text_color", "inactive_background", "inactive_text_color", "title_color"];
 const COLOR_VARS = {
@@ -169,9 +169,9 @@ class VenetianBlindsCard extends LitElement {
   }
 
   _tiltIcon(tilt) {
-    const o = ((clampTilt(tilt) - 50) / 50) * -5;
+    const o = ((clampTilt(tilt) - 50) / 50) * -7;
     const y = (base) => ({ l: (base - o).toFixed(2), r: (base + o).toFixed(2) });
-    const a = y(8), b = y(13), c = y(18);
+    const a = y(7), b = y(12), c = y(17);
     return html`
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <path d="M4 ${a.l} L20 ${a.r}"></path>
