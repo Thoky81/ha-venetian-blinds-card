@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.3.5";
+const VERSION = "0.3.6";
 
 const COLOR_KEYS = ["accent_color", "active_text_color", "inactive_background", "inactive_text_color", "title_color"];
 const COLOR_VARS = {
@@ -429,7 +429,7 @@ class VenetianBlindsCard extends LitElement {
       .list .chip.active {
         background: var(--vb-accent, var(--primary-color));
         border-color: var(--vb-accent, var(--primary-color));
-        color: var(--vb-active-text, var(--text-primary-color, white));
+        color: var(--vb-active-text, white);
       }
       .list .chip:disabled { cursor: not-allowed; }
 
@@ -497,7 +497,7 @@ class VenetianBlindsCard extends LitElement {
       }
       .cards .preset.active {
         background: var(--vb-accent, var(--primary-color));
-        color: var(--vb-active-text, var(--text-primary-color, white));
+        color: var(--vb-active-text, white);
       }
       .cards .preset:disabled { cursor: not-allowed; }
       .cards .preset-label {
