@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-const VERSION = "0.3.4";
+const VERSION = "0.3.5";
 
 const COLOR_KEYS = ["accent_color", "active_text_color", "inactive_background", "inactive_text_color", "title_color"];
 const COLOR_VARS = {
@@ -49,8 +49,6 @@ function resolveService(state, mode) {
   return POS_SVC;
 }
 
-
-const TILT_TOLERANCE = 5;
 
 function clampTilt(t) {
   const n = Number(t);
@@ -148,10 +146,10 @@ class VenetianBlindsCard extends LitElement {
   _activePresetIndex(currentTilt) {
     if (currentTilt == null) return -1;
     let bestIdx = -1;
-    let bestDist = TILT_TOLERANCE + 1;
+    let bestDist = Infinity;
     this._config.presets.forEach((p, i) => {
       const d = Math.abs(p.tilt - currentTilt);
-      if (d <= TILT_TOLERANCE && d < bestDist) {
+      if (d < bestDist) {
         bestDist = d;
         bestIdx = i;
       }
@@ -164,7 +162,9 @@ class VenetianBlindsCard extends LitElement {
     if (state.state === "unavailable") return "Unavailable";
     if (tilt == null) return state.state;
     const idx = this._activePresetIndex(tilt);
-    if (idx >= 0) return `${this._config.presets[idx].name} · ${tilt}%`;
+    if (idx >= 0 && Math.abs(this._config.presets[idx].tilt - tilt) <= 5) {
+      return `${this._config.presets[idx].name} · ${tilt}%`;
+    }
     return `Tilt ${tilt}%`;
   }
 
